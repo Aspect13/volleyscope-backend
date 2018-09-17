@@ -3,12 +3,10 @@ from functools import wraps
 from flask import jsonify, Blueprint, render_template, request, json, current_app
 from flask.views import MethodView
 from flask_jwt import JWT, jwt_required, current_identity, JWTError, _jwt_required
-from werkzeug.security import safe_str_cmp
 
 from models import User, Event
 
 app = Blueprint('api', __name__, static_folder='static', template_folder='templates', url_prefix=None)
-
 
 def register_api(view, endpoint, url, pk='id', pk_type='int'):
 	view_func = view.as_view(endpoint)
@@ -23,6 +21,7 @@ def index():
 	if not current_identity:
 		return 'Not Authorized!'
 	return render_template('tst.html', user=current_identity.first_name + ' ' + current_identity.last_name)
+
 
 
 # @app.before_request
@@ -90,7 +89,7 @@ class ModelAPI(MethodView):
 			item._delete(current_identity)
 		except AttributeError as e:
 			return jsonify({'error': e.args[0]}), 501
-		return '', 200
+		return 'OK', 200
 
 	@jwt_wrapper
 	def put(self, id):
@@ -103,7 +102,10 @@ class ModelAPI(MethodView):
 			return jsonify({'error': e.args[0]}), 501
 		except PermissionError as e:
 			return jsonify({'error': e.args[0]}), 401
-		return '', 200
+		return 'OK', 200
+
+	def options(self):
+		return 'OK', 200
 
 
 class UserView(ModelAPI):

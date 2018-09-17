@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, request
+from flask_cors import CORS
 from flask_jwt import JWT
 from werkzeug.security import safe_str_cmp
 
@@ -31,14 +32,20 @@ def identify(payload):
 		return user
 	return
 
+CORS(app)
 
 jwt = JWT(app, authenticate, identify)
 
 app.register_blueprint(rest_api)
 db.init_app(app)
 
-
 # db = SQLAlchemy(app)
+
+@app.before_request
+def monkey_cors():
+	if request.method == 'OPTIONS':
+		print('monkey_cors', request.method)
+		return 'OK', 200
 
 
 @app.before_first_request
